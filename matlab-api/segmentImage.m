@@ -1,5 +1,5 @@
-function segmentImage(filename, componentType, init)
-    % segmentImage  segmentImage(filename, componentType) loads an image
+function segmentImage(filename, componentType)
+    % segmentImage  segmentImage(filename, componentType) loads a .JPG
     % file of handdrawn components and allows the user to manually convert
     % all of ONE TYPE OF COMPONENT to the datastorage type. 
     %
@@ -9,11 +9,11 @@ function segmentImage(filename, componentType, init)
     % data type to manipulate in Matlab and allows for easy porting to
     % Python for CNN analysis.
     %
-    % NOTE: stoploop works funky with the ROI code. You need to select
-    % 'done' in the split second between region selects in order for the
-    % loop to recognize that you want the loop to be done. Then you need to
-    % select one more region before the saving will happen
-    %
+    % USAGE: Select a region around each component. When finished, exit
+    % figure window and type either 'save' to save progress or 'exit'.
+    % Note: gray boxes indicating the progress made of the image is not
+    % saved atm.
+    % 
     % PARAMETERS:
     % 
     %   - filename  ::  Name of the image file to select regions on
@@ -47,28 +47,74 @@ function segmentImage(filename, componentType, init)
     
     %% Initialization
     image = imread(filename);
-    imgray = rgb2gray(image);
+    if length(size(image)) == 3
+        imgray = rgb2gray(image);
+    else
+        imgray = image;
+    end
     
     % Initialize new X and Y cell array (used for variable sizing)
     Xnew = {};
     Ynew = {};
     
     % Initialize 'stoploop' dialog box for saving 
-    FS = stoploop('Stop the loop');
+    % FS = stoploop('Stop the loop');
     
     i = 1;
     %% Loop and Process
-    while ~FS.Stop()
-        % Select component region
-        ROI = imSelectROI(imgray, 'AllowedShape', 'Square',...
-            'FastReturn', 'on');         
-        newimg = imgray(ROI.Yrange, ROI.Xrange);
+    % while ~FS.Stop()
+    wantSave = 0;
+    while 1
+        try
+        % Do the below if the selection window isn't canceled.
+            % Select component region
+            ROI = imSelectROI(imgray, 'AllowedShape', 'Square',...
+                'FastReturn', 'on');
+            newimg = imgray(ROI.Yrange, ROI.Xrange);
+
+            % Gray out previous selection
+            endStops = floor(length(ROI.Yrange) / 4);
+            yGrayRange = ROI.Yrange(endStops:end-endStops);
+            xGrayRange = ROI.Xrange(endStops:end-endStops);
+            imgray(yGrayRange, xGrayRange) = 100;
+
+            % Resize selected image, flatten and add to cell array
+            newimg_resized = imresize(newimg, [32, 32]);
+            Xnew{i} = newimg_resized(:)';
+            Ynew{i} = label;
+            i = i + 1;
+        catch
+            % Ask the user if new samples should be saved, discarded, or
+            % 'x' was accidentally clicked
+            
+            validStr = 0;
+            while ~validStr
+                msg = sprintf(['Command window exited. Do you want to:\n',...
+                    '\tSave progress (save)?\n',...
+                    '\tContinue selecting (cont)?\n',...
+                    '\tExit without saving (exit)?\n\t>> ']);
+                    result = input(msg, 's');
+                switch lower(result)
+                    case 'save'
+                        wantSave = 1;
+                        validStr = 1;
+                    case 'cont'
+                        fprintf('Continuing to select images\n');
+                        validStr = 1;
+                    case 'exit'
+                        fprintf('Exiting without saving... %d samples lost\n', length(Ynew))
+                        return
+                    otherwise
+                        fprintf('Please enter a valid answer\n');
+                        continue
+                end
+            end
+        end
         
-        % Resize image, flatten and add to cell array
-        newimg_resized = imresize(newimg, [32, 32]);
-        Xnew{i} = newimg_resized(:)';
-        Ynew{i} = label;
-        i = i + 1;
+        % If you want to save, break loop and continue the program
+        if wantSave
+            break
+        end
     end
     
     % Convert cell array to matrix
@@ -77,9 +123,17 @@ function segmentImage(filename, componentType, init)
         Yout = cell2mat(Ynew');
     end
     
+    % Delete old saved images (assume .jpg extension)
+    imgBaseName = [filename(1:end-4), '-gray'];
+    delete([imgBaseName, '*.jpg']);
+    
+    % Save modified image
+    newimgname = [imgBaseName, '_', datestr(now, 'yyyymmdd_HH.MM'), '.jpg'];
+    imwrite(imgray, newimgname)
+    
     %% Append to old data
     dat_fname = '../data/data.mat';
-    if ~init
+    try
         oldData = load(dat_fname);
         
         % Append new data to old data
@@ -89,12 +143,16 @@ function segmentImage(filename, componentType, init)
         fprintf('Saving %d new samples... ', length(Yout))
         save(dat_fname, '-struct', 'newData')
         fprintf('Done!\n');
-    else
-        newData = struct('X', Xout, 'Y', Yout);
+    catch ME
+        if strcmp(ME.identifier, 'MATLAB:load:couldNotReadFile')
+            newData = struct('X', Xout, 'Y', Yout);
         
-        % Save data to file
-        fprintf('Saving %d new samples... ', length(Yout))
-        save(dat_fname, '-struct', 'newData')
-        fprintf('Done!\n');
+            % Save data to file
+            fprintf('Saving %d new samples... ', length(Yout))
+            save(dat_fname, '-struct', 'newData')
+            fprintf('Done!\n');
+        else
+            rethrow(ME)
+        end
     end
 end
