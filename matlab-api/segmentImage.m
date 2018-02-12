@@ -19,13 +19,6 @@ function segmentImage(filename, componentType)
     %   - filename  ::  Name of the image file to select regions on
     %   - componentType  ::  One of {'resistor', 'capacitor', 'inductor',
     %                      'voltage source', 'current source'}
-    %   - init  ::  '1' if existing data does not already exist. '0' by
-    %   default
-
-    %%
-    if nargin < 3
-        init = 0;
-    end
     
     %% Convert component type into label
     switch lower(componentType)
@@ -57,12 +50,12 @@ function segmentImage(filename, componentType)
     Xnew = {};
     Ynew = {};
     
-    % Initialize 'stoploop' dialog box for saving 
-    % FS = stoploop('Stop the loop');
+    % Silence warnings
+    %sWarning = 'images:initSize:adjustingMag';
+    warning('off', 'all');
     
-    i = 1;
     %% Loop and Process
-    % while ~FS.Stop()
+    i = 1;
     wantSave = 0;
     while 1
         try
@@ -89,7 +82,7 @@ function segmentImage(filename, componentType)
             
             validStr = 0;
             while ~validStr
-                msg = sprintf(['Command window exited. Do you want to:\n',...
+                msg = sprintf(['Selection window exited. Do you want to:\n',...
                     '\tSave progress (save)?\n',...
                     '\tContinue selecting (cont)?\n',...
                     '\tExit without saving (exit)?\n\t>> ']);
@@ -128,7 +121,7 @@ function segmentImage(filename, componentType)
     delete([imgBaseName, '*.jpg']);
     
     % Save modified image
-    newimgname = [imgBaseName, '_', datestr(now, 'yyyymmdd_HH.MM'), '.jpg'];
+    newimgname = [imgBaseName, '_', datestr(now, 'yyyymmdd'), '.jpg'];
     imwrite(imgray, newimgname)
     
     %% Append to old data
