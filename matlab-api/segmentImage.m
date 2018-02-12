@@ -62,7 +62,7 @@ function segmentImage(filename, componentType)
         % Do the below if the selection window isn't canceled.
             % Select component region
             ROI = imSelectROI(imgray, 'AllowedShape', 'Square',...
-                'FastReturn', 'on');
+                'FastReturn', 'on', 'SelectionMode', 'Centered');
             newimg = imgray(ROI.Yrange, ROI.Xrange);
 
             % Gray out previous selection
