@@ -33,7 +33,7 @@ function [imgCC, outPic] = find_segments(inPic)
     midPic = block_binarize(inPic, [2 2] .^ 6);
     midPic = imclose(~midPic, strel('disk', 5));
     midPic = bwareaopen(midPic, 20);
-    outPic = midPic;
+    outPic = ~midPic;
     
     %% Find the different segments
     connected = bwconncomp(midPic);
@@ -41,18 +41,9 @@ function [imgCC, outPic] = find_segments(inPic)
         'Area', 'BoundingBox', 'Centroid', 'Image');
     
     %% Show the labeled image
+    show_object_boundaries(outPic, imgCC);
     
-    %  Show the binarized image
-    imshow(~outPic);
-    
-    %  Plot the rectangle boundaries
-    hold on
-    for cc = 1 : numel(imgCC)
-        rectangle('Position', imgCC(cc).BoundingBox, 'EdgeColor', 'b');
-    end
-    hold off
-    
-    %  Skip the rest of the code
+    %% Skip the rest of the code
     return;
     
     %% Self made connected component finding code (probably no good)
