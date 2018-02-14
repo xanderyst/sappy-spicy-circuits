@@ -148,6 +148,7 @@ else
     error('%s: Wrong value of "SelectionMode" parameter ("%s")',mfilename,GP.SelectionMode_i);
 end
 
+
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 % Creating GUI
 %~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,7 +187,7 @@ movegui(GP.hFig, 'east');
 GP.hDoneBtn     = uicontrol( 'Style','pushbutton',  'Parent',gcf,   'FontWeight','bold',                'units','normalized',   'position',[1-2.0*LBoxWidth 0 LBoxWidth 0.2], 'string','Done');
 GP.hModeLBox    = uicontrol( 'Style','listbox',     'Parent',gcf,   'min',0,    'max',1,    'value',1,  'units','normalized',   'position',[1-3.5*LBoxWidth 0 LBoxWidth 0.2], 'string',GP.SelectionModes);
 GP.hShapeLBox   = uicontrol( 'Style','listbox',     'Parent',gcf,   'min',0,    'max',1,    'value',1,  'units','normalized',   'position',[1-4.5*LBoxWidth 0 LBoxWidth 0.2], 'string',GP.AllowedShapes);
-GP.hZoomPMenu   = uicontrol( 'Style','popupmenu',   'Parent',gcf,                           'value',5,  'units','normalized',   'position',[1-6.0*LBoxWidth 0 LBoxWidth 0.2], 'string',{'0010%','0025%','0050%','0075%','0100%','0150%','0200%','0250%','0300%','0400%','0500%','0600%','0700%','0800%','0900%','1000%'});
+GP.hZoomPMenu   = uicontrol( 'Style','popupmenu',   'Parent',gcf,                           'value',2,  'units','normalized',   'position',[1-6.0*LBoxWidth 0 LBoxWidth 0.2], 'string',{'0010%','0025%','0050%','0075%','0100%','0150%','0200%','0250%','0300%','0400%','0500%','0600%','0700%','0800%','0900%','1000%'});
 GP.hRedoBtn     = uicontrol( 'Style','pushbutton',  'Parent',gcf,   'FontWeight','bold',                'units','normalized',   'position',[1-7.5*LBoxWidth 0 LBoxWidth 0.2], 'string','Start over');
 GP.hStatus      = uicontrol( 'Style','text',        'Parent',gcf,   'FontWeight','bold', 'FontSize',12, 'units','normalized',   'position',[1-9.0*LBoxWidth 0 LBoxWidth 0.2], 'string','');
 
@@ -219,6 +220,11 @@ end
 
 axes(GP.hAxes);
 axis image; axis on;
+
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+% Custom inits
+%~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+GP.hSPAPI.setMagnification( str2double( '0025' ) / 100);
 
 %=========================================================================
 % Stroing handles and other data to safe place

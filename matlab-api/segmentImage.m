@@ -116,13 +116,8 @@ function segmentImage(filename, componentType)
         Yout = cell2mat(Ynew');
     end
     
-    % Delete old saved images (assume .jpg extension)
-    imgBaseName = [filename(1:end-4), '-gray'];
-    delete([imgBaseName, '*.jpg']);
-    
-    % Save modified image
-    newimgname = [imgBaseName, '_', datestr(now, 'yyyymmdd'), '.jpg'];
-    imwrite(imgray, newimgname)
+    % Save modified image, overwrite previous
+    imwrite(imgray, filename)
     
     %% Append to old data
     dat_fname = '../data/data.mat';
