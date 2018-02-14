@@ -22,7 +22,7 @@ function outBlock = process_block(inBlock)
     [thresh, eff] = graythresh(inBlock);
     
     if (eff < 0.75)
-        thresh = thresh - 0.1;
+        thresh = 0;
     end
     
     outBlock = imbinarize(inBlock, thresh);
