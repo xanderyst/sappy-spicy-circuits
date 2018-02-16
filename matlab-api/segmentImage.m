@@ -1,4 +1,4 @@
-function segmentImage(filename, componentType)
+function segmentImage(filename, componentType, datapath)
     % segmentImage  segmentImage(filename, componentType) loads a .JPG
     % file of handdrawn components and allows the user to manually convert
     % all of ONE TYPE OF COMPONENT to the datastorage type. 
@@ -120,7 +120,7 @@ function segmentImage(filename, componentType)
     imwrite(imgray, filename)
     
     %% Append to old data
-    dat_fname = '../data/data.mat';
+    dat_fname = datapath;
     try
         oldData = load(dat_fname);
         
