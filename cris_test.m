@@ -15,16 +15,23 @@
 
 %% image data store works??
 imds = imageDatastore('data/cris_img', 'IncludeSubFolders', true, 'FileExtensions', '.jpg', 'LabelSource', 'foldernames')
-
+tbl= countEachLabel(imds);
+minSetCount = min(tbl{:,2}); 
+imds = splitEachLabel(imds, minSetCount, 'randomize');
 %% gimme a bag of features
-[train, validate] = splitEachLabel(imds, 0.8, 'randomize');
+
+[train, validate] = splitEachLabel(imds, 0.3, 'randomize');
 % bag = bagOfFeatures(train);
 
 %% can i modify this bag
-cornerFcn = @cornerFeatureExtractor;
-extract = @exampleBagOfFeaturesExtractor;
-bag = bagOfFeatures(train, 'CustomExtractor', extract);
+bag = bagOfFeatures(train);
+
 
 %% test it
 catClass = trainImageCategoryClassifier(train, bag);
 confMatrix = evaluate(catClass, train);
+
+%% Test it 2
+img = imread('data/xan_test/resimage_7.jpg');
+[labelIdx, scores]=predict(catClass, img);
+catClass.Labels(labelIdx);

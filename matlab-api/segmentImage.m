@@ -1,4 +1,4 @@
-function segmentImage(filename, componentType, datapath)
+function segmentImage(filename, componentType, datapatwh)
     % segmentImage  segmentImage(filename, componentType) loads a .JPG
     % file of handdrawn components and allows the user to manually convert
     % all of ONE TYPE OF COMPONENT to the datastorage type. 
