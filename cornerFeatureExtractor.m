@@ -1,4 +1,4 @@
-function [features, featureMetrics, varargout] = cornerFeatureExtractor(I)
+function [features, featureMetrics] = cornerFeatureExtractor(I)
 % This function implements the default SURF feature extraction used in
 % bagOfFeatures and is only intended to show how to write a custom 
 % extractor function for bagOfFeatures.
@@ -53,21 +53,21 @@ gridLocations = [x(:) y(:)];
 %%
 % Concatenate multiple SURFPoint objects at different scales to achieve
 % multiscale feature extraction.
-multiscaleGridPoints = [cornerPoints(gridLocations, 'Scale', 1.6); 
-                        cornerPoints(gridLocations, 'Scale', 3.2);
-                        cornerPoints(gridLocations, 'Scale', 4.8);
-                        cornerPoints(gridLocations, 'Scale', 6.4)];
+% multiscaleGridPoints = [cornerPoints(gridLocations, 'Scale', 1.6); 
+%                         cornerPoints(gridLocations, 'Scale', 3.2);
+%                         cornerPoints(gridLocations, 'Scale', 4.8);
+%                         cornerPoints(gridLocations, 'Scale', 6.4)];
                     
 % Alternatively, you may use a feature detector such as detectSURFFeatures
 % or detectMSERFeatures to select point locations. For instance:
 %
 % multiscaleSURFPoints = detectSURFFeatures(grayImage);
-
+CornerPoints = detectMSERFeatures(grayImage);
                     
 %% Step 3: Extract features
 % Finally, extract features from the selected point locations. By default,
 % bagOfFeatures extracts upright SURF features. 
-features = extractFeatures(grayImage, multiscaleGridPoints);
+[features, valpoints] = extractFeatures(grayImage, CornerPoints, 'Upright', true)
 
 %% Step 4: Compute the Feature Metric
 % The feature metrics indicate the strength of each feature, where larger
@@ -77,19 +77,19 @@ features = extractFeatures(grayImage, multiscaleGridPoints);
 % vectors.
 %
 % Use the variance of the SURF features as the feature metric.
-featureMetrics = var(features,[],2);
+% featureMetrics = var(features,[],2);
 
 % Alternatively, if a feature detector was used for point selection,
 % the detection metric can be used. For example:
 %
-% featureMetrics = multiscaleSURFPoints.Metric;
+featureMetrics = CornerPoints.Metric
 
 % Optionally return the feature location information. The feature location
 % information is used for image search applications. See the retrieveImages
 % and indexImages functions.
-if nargout > 2
-    % Return feature location information
-    varargout{1} = multiscaleGridPoints.Location;
-end
+% if nargout > 2
+%     % Return feature location information
+%     varargout{1} = multiscaleGridPoints.Location;
+% end
 
 

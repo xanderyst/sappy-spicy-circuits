@@ -22,8 +22,9 @@ imds = imageDatastore('data/cris_img', 'IncludeSubFolders', true, 'FileExtension
 
 %% can i modify this bag
 cornerFcn = @cornerFeatureExtractor;
+extract = @exampleBagOfFeaturesExtractor;
+bag = bagOfFeatures(train, 'CustomExtractor', extract);
 
-corner_bag = bagOfFeatures(train, 'CustomExtractor', cornerFcn);
 %% test it
-catClass = trainImageCategoryClassifier(train, corner_bag);
+catClass = trainImageCategoryClassifier(train, bag);
 confMatrix = evaluate(catClass, train);
