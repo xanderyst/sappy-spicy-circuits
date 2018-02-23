@@ -1,0 +1,10 @@
+load('xan_test/label_definitions.mat','resAndCapGroundTruth');
+resGroundTruth = selectLabels(resAndCapGroundTruth,'resistor');
+trainingData = objectDetectorTrainingData(resGroundTruth);
+acfDetector = trainACFObjectDetector(trainingData,'NegativeSamplesFactor',2);
+I = imread('stopSignTest.jpg');
+bboxes = detect(acfDetector,I);
+annotation = acfDetector.ModelName;
+I = insertObjectAnnotation(I,'rectangle',bboxes,annotation);
+figure 
+imshow(I)
