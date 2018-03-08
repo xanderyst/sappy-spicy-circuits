@@ -20,10 +20,10 @@ function outBen = suzhou_to_ben(inCC)
     for i = 1 : numel(inCC)
         
         % Get the indexes of the bounding box in terms of Ben's matrix
-        x_ctr = inCC(i).centroid(1);
-        y_ctr = inCC(i).centroid(2);
-        width  = inCC(i).BoundingBox(3);
-        height = inCC(i).BoundingBox(4);
+        width  = ceil(inCC(i).BoundingBox(3));
+        height = ceil(inCC(i).BoundingBox(4));
+        x_ctr = floor(inCC(i).BoundingBox(1) + (width / 2));
+        y_ctr = floor(inCC(i).BoundingBox(2) + (height / 2));
         
         % Input the indices into the output matrix
         outBen(i, :) = [x_ctr, y_ctr, width, height];
