@@ -14,17 +14,15 @@ function outCC = remove_small_components(inCC, smallSize)
 % Written by:
 % Suzhou Li
 
-    %% Check the input arguments
+    % Check the input arguments
     if (nargin == 1)
         smallSize = 100;
     end
     
-    %% Remove the small components
-    
-    %  Initialize the output
+    % Initialize the output
     outCC = inCC;
     
-    %  Iterate through the components
+    % Iterate through the components
     i = 1;
     while (i <= numel(outCC))
         
@@ -41,5 +39,4 @@ function outCC = remove_small_components(inCC, smallSize)
         % Increment i
         i = i + 1;
     end
-
 end
