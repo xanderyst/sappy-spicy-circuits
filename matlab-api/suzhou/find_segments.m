@@ -26,19 +26,24 @@ function [imgCC, outPic] = find_segments(inPic)
     end
     
     %% Crop the image
+    figure('Units', 'Normalized', 'OuterPosition', [0 0 1 1]), clf;
     inPic = imcrop(inPic);
     close;
     
     %% Binarize and smooth the image
-    midPic = block_binarize(inPic, [2 2] .^ 6);
-    midPic = imclose(~midPic, strel('disk', 5));
-    midPic = bwareaopen(midPic, 20);
-    outPic = ~midPic;
+    midPic = block_binarize(inPic, [2 2] .^ 8, 0.8);
+    midPic = imopen(midPic, strel('disk', 5));
+    % midPic = medfilt2(midPic, [2 2] .^ 8); % too slow
+    outPic = midPic;
     
     %% Find the different segments
-    connected = bwconncomp(midPic);
+    connected = bwconncomp(~midPic);
     imgCC = regionprops(connected, ...
         'Area', 'BoundingBox', 'Centroid', 'Image');
+    
+    %% Perform other processes on the components to combine or remove
+    imgCC = combine_inside_components(imgCC);
+    imgCC = remove_small_components(imgCC);
     
     %% Show the labeled image
     show_object_boundaries(outPic, imgCC);
