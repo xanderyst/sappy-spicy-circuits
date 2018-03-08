@@ -1,14 +1,22 @@
-T = loadImds2Table('../data/cap_is.mat');
+%% Load / create your data
+% Load small data
+T = load('data/small_table.mat');
+T = T.Tout;
 
+% Create small data from Imds
+% T = loadImds2Table('../data/cap_is.mat');
+% % Convert table to smaller image
+% T = resizeTableImages(T, 'img/resized');
+
+%% Initiaize parameters
 height = 32;
 width = 32;
-numChannels = 1;
-numImageCategories = size(T, 2); % Cap, IS, background 
+numChannels = 3; % Make this a gray scale learner
+numImageCategories = size(T, 2); % Number of categories + 1
 
 imageSize = [height width numChannels];
 inputLayer = imageInputLayer(imageSize);
 
-%% Convolutional layer parameters
 filterSize = [3 3];
 numFilters = 32;
 
@@ -30,15 +38,14 @@ convolution2dLayer(filterSize, numFilters, 'Padding', 1)
 
 % Next add the ReLU layer:
 reluLayer()
-
-% Repeat
 convolution2dLayer(filterSize, numFilters, 'Padding', 1)
 reluLayer()
+maxPooling2dLayer(3, 'Stride', 2)
 
 % Follow this with a max pooling layer that has a 3x3 spatial pooling area
 % and a stride of 2 pixels. This down-samples the data dimensions from
 % 32x32 to 15x15.
-maxPooling2dLayer(3, 'Stride', 2)
+% maxPooling2dLayer(3, 'Stride', 2)
 
 % % Repeat the 3 core layers to complete the middle of the network.
 % convolution2dLayer(filterSize, numFilters, 'Padding', 2)
@@ -59,7 +66,7 @@ finalLayers = [
 fullyConnectedLayer(64)
 
 % Add an ReLU non-linearity.
-reluLayer
+reluLayer()
 
 % Add the last fully connected layer. At this point, the network must
 % produce 10 signals that can be used to measure whether the input image
@@ -83,28 +90,40 @@ layers = [
     finalLayers
     ];
 
-layers(2).Weights = 0.0001 * randn([filterSize numChannels numFilters]);
+% data = load('fasterRCNNVehicleTrainingData.mat');
+% layers = data.layers;
+% layers(2).Weights = 0.0001 * randn([filterSize numChannels numFilters]);
 %% 
 % Set the network training options
 % opts = trainingOptions('sgdm', ...
 %     'Momentum', 0.9, ...
-%     'InitialLearnRate', 0.001, ...
+%     'InitialLearnRate', 1e-4, ...
 %     'LearnRateSchedule', 'piecewise', ...
 %     'LearnRateDropFactor', 0.1, ...
 %     'LearnRateDropPeriod', 8, ...
 %     'L2Regularization', 0.004, ...
-%     'MaxEpochs', 2, ...
+%     'MaxEpochs', 40, ...
 %     'MiniBatchSize', 128, ...
 %     'Verbose', true);
 
 opts = trainingOptions('sgdm', ...
     'InitialLearnRate', 1e-6, ...
-    'MaxEpochs', 2, ...
-    'Verbose', true);
+    'MaxEpochs', 40, ...
+    'Verbose', true,....
+    'MiniBatchSize', 128);
 
 %% Establish training data
 tdat = struct('T', T, 'layers', layers, 'opts', opts);
 
-%% Train and test detector
+%% Train detector
 detector = trainFasterRCNNObjectDetector(tdat.T, tdat.layers, tdat.opts, ...
-    'PositiveOverlapRange', [0.7 1]);
+    'PositiveOverlapRange', [0.5 1]);
+
+%% Test detector
+imtest = imread('img/resized/LVI_1.jpg');
+[bbox, score, label] = detect(detector, imtest);
+
+detectedImTest = insertShape(imtest, 'Rectangle', bbox);
+
+figure
+imshow(detectedImTest)
