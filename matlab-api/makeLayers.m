@@ -9,7 +9,7 @@ imageSize = [height width numChannels];
 inputLayer = imageInputLayer(imageSize);
 
 %% Convolutional layer parameters
-filterSize = [3 3];
+filterSize = [5 5];
 numFilters = 32;
 
 %% Define middle layers
@@ -20,7 +20,7 @@ middleLayers = [
 % are included in the processing. This is important to avoid
 % information at the borders being washed away too early in the
 % network.
-convolution2dLayer(filterSize, numFilters, 'Padding', 1)
+convolution2dLayer(filterSize, numFilters, 'Padding', 2)
 
 % Note that the third dimension of the filter can be omitted because it
 % is automatically deduced based on the connectivity of the network. In
@@ -30,9 +30,11 @@ convolution2dLayer(filterSize, numFilters, 'Padding', 1)
 
 % Next add the ReLU layer:
 reluLayer()
+maxPooling2dLayer(3, 'Stride', 2)
+
 
 % Repeat
-convolution2dLayer(filterSize, numFilters, 'Padding', 1)
+convolution2dLayer(filterSize, numFilters, 'Padding', 2)
 reluLayer()
 
 % Follow this with a max pooling layer that has a 3x3 spatial pooling area
@@ -41,13 +43,13 @@ reluLayer()
 maxPooling2dLayer(3, 'Stride', 2)
 
 % % Repeat the 3 core layers to complete the middle of the network.
-% convolution2dLayer(filterSize, numFilters, 'Padding', 2)
-% reluLayer()
-% maxPooling2dLayer(3, 'Stride',2)
-% 
-% convolution2dLayer(filterSize, 2 * numFilters, 'Padding', 2)
-% reluLayer()
-% maxPooling2dLayer(3, 'Stride',2)
+convolution2dLayer(filterSize, numFilters, 'Padding', 2)
+reluLayer()
+maxPooling2dLayer(3, 'Stride',2)
+
+convolution2dLayer(filterSize, 2 * numFilters, 'Padding', 2)
+reluLayer()
+maxPooling2dLayer(3, 'Stride',2)
 
 ];
 
@@ -103,8 +105,9 @@ opts = trainingOptions('sgdm', ...
     'Verbose', true);
 
 %% Establish training data
+data = load('fasterRCNNVehicleTrainingData.mat');
 tdat = struct('T', T, 'layers', layers, 'opts', opts);
 
 %% Train and test detector
 detector = trainFasterRCNNObjectDetector(tdat.T, tdat.layers, tdat.opts, ...
-    'PositiveOverlapRange', [0.7 1]);
+    'PositiveOverlapRange', [0.7 1], 'SmallestImageDimension', 600)
