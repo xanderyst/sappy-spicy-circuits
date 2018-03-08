@@ -49,7 +49,7 @@ function alphabet = read_alphabet_images(file_path)
         end
         
         % Store the image of the letter
-        alphabet(i).Image = imbinarize(img);
+        alphabet(i).Image = pad_to_square(~imbinarize(img));
     end
 
 end
