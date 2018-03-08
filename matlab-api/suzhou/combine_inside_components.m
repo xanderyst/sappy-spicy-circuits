@@ -55,13 +55,13 @@ function ccOut = combine_inside_components(ccIn)
                 % Remove the object
                 ccOut(j) = [];
                 
-                % Decrement j
-                j = j - 1;
-                
                 % If the j is lower than i, decrement i as well
-                if (j <= i)
+                if (j < i)
                     i = i - 1;
                 end
+                
+                % Decrement j
+                j = j - 1;
             end
             
             % Increment j
