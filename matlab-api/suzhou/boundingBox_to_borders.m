@@ -13,6 +13,6 @@ function [left, top, right, bottom] = boundingBox_to_borders(boundingBox)
     %% Get the borders of the box
     left   = boundingBox(1);
     top    = boundingBox(2);
-    right  = lft + boundingBox(3);
+    right  = left + boundingBox(3);
     bottom = top + boundingBox(4);
 end
