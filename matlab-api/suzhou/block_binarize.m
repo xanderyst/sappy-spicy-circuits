@@ -1,27 +1,32 @@
-function outPic = block_binarize(inPic, blockSize)
-% outPic = block_binarize(inPic, blockSize)
+function outPic = block_binarize(inPic, blockSize, conf)
+% outPic = block_binarize(inPic, blockSize, conf_thresh)
 % 
 % Binarizes the image in blocks.
 % 
 % Input:
 % - inPic = matrix containing the grayscale image
 % - blockSize = 1x2 vector containing length and width of the block
+% - conf = confidence threshold of binarization (between 0 and 1)
 %
 % Output:
 % - outPic = matrix containing the binarized output image
 %
 % Written by:
 % Suzhou Li
-
-    block_fun = @(block_struct) process_block(block_struct.data);
+    
+    if (nargin <= 2)
+        conf = 0.75;
+    end
+    
+    block_fun = @(block_struct) process_block(block_struct.data, conf);
     outPic = blockproc(inPic, blockSize, block_fun, ...
         'UseParallel', true);
 end
 
-function outBlock = process_block(inBlock)
+function outBlock = process_block(inBlock, conf)
     [thresh, eff] = graythresh(inBlock);
     
-    if (eff < 0.75)
+    if ((eff < conf) || (thresh > 0.85))
         thresh = 0;
     end
     
