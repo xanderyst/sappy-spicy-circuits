@@ -31,7 +31,9 @@ function [imgCC, outPic] = find_segments(inPic)
     close;
     
     %% Binarize and smooth the image
-    midPic = block_binarize(inPic_cropped, [2 2] .^ 8, 0.8);
+    midPic = imbinarize(inPic_cropped, 'adaptive', ...
+        'ForegroundPolarity', 'dark', 'Sensitivity', 0.5); 
+    % midPic = block_binarize(inPic_cropped, [2 2] .^ 8, 0.7, 0.7);
     midPic = imopen(midPic, strel('disk', 8));
     % midPic = medfilt2(midPic, [2 2] .^ 8); % too slow
     outPic = midPic;
