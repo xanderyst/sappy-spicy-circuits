@@ -3,7 +3,8 @@ resGroundTruth = selectLabels(resAndCapGroundTruth.gTruth,'resistor');
 trainingData = objectDetectorTrainingData(resGroundTruth);
 summary(trainingData)
 acfDetector = trainACFObjectDetector(trainingData);
-I = imread('data/xan_test/testing3.jpg');
+RGB = imread('data/xan_test/testing3.jpg');
+I = rgb2gray(RGB);
 bboxes = detect(acfDetector,I);
 annotation = acfDetector.ModelName;
 I = insertObjectAnnotation(I,'rectangle',bboxes,annotation);
