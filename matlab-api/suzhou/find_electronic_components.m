@@ -44,8 +44,13 @@ function components = find_electronic_components(imgName, rotation, noise)
         end
         
         % Find the connected components
-        [imgCC, ~] = find_segments(imgRGB);
-
+        [imgCC, imgOut] = find_segments(imgRGB);
+        imgCC = combine_inside_components(imgCC);
+        imgCC = combine_close_components(imgCC, imgOut, 2);
+        
+        % Show the labeled image
+        show_object_boundaries(imgRGB, imgCC);
+        
         % Ask if this data is okay
         data_okay = input('Does this look okay? (y/n): ', 's');
         
