@@ -38,15 +38,7 @@ convolution2dLayer(filterSize, numFilters, 'Padding', 2)
 
 % Next add the ReLU layer:
 reluLayer()
-<<<<<<< HEAD
-maxPooling2dLayer(3, 'Stride', 2)
-
-
-% Repeat
-convolution2dLayer(filterSize, numFilters, 'Padding', 2)
-=======
 convolution2dLayer(filterSize, numFilters, 'Padding', 1)
->>>>>>> c5c3f371f2b7f43348e8d550646d2ce37e0706f2
 reluLayer()
 maxPooling2dLayer(3, 'Stride', 2)
 
