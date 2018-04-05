@@ -1,4 +1,4 @@
-function [imgOut, components] = remove_components(imgIn)
+function [imgOut, components, mask] = remove_components(imgIn)
 % [imgOut, components] = remove_components(imgIn)
 %
 % Function to remove components in an interactive method. Uses the
@@ -34,9 +34,22 @@ function [imgOut, components] = remove_components(imgIn)
     get_components = true;
     while get_components
         
-        % Get the rectangle's bounding box that the user chooses
+        % Get the rectangle's boundaries that the user chooses
         box = getrect(fig);
         box = [floor([box(1), box(2)]), ceil([box(3), box(4)])];
+        [lft, top, rgt, btm] = boundingBox_to_borders(box);
+        
+        % Limit the rectangle's boundaries to the borders of the image
+        lft = limit_value(lft, 1, size(imgIn, 2));
+        rgt = limit_value(rgt, 1, size(imgIn, 2));
+        top = limit_value(top, 1, size(imgIn, 1));
+        btm = limit_value(btm, 1, size(imgIn, 1));
+        
+        % Convert the boundaries to a bounding box
+        box(1) = lft; % minimum x
+        box(2) = top; % minimum y
+        box(3) = rgt - lft; % width
+        box(4) = btm - top; % height
         
         % Draw a box over the selection
         rectangle('Position', box, 'EdgeColor', 'r');
@@ -48,9 +61,12 @@ function [imgOut, components] = remove_components(imgIn)
             'SelectionMode', 'single', ...
             'Name', 'Component Selection');
         
-        % Retrieve the name of the component based on the selection index
+        % Put the component properties in
         if selection_made
             components(end + 1).CompName = component_names(part);
+            components(end).CompCentroid = floor( ...
+                [(box(1) + (box(3) / 2)), ... % initialize with the
+                 (box(2) + (box(4) / 2))]);   % center not centroid
             components(end).CompLocation = box;
         else
             error('No selection made.');
@@ -75,7 +91,9 @@ function [imgOut, components] = remove_components(imgIn)
     img_w = size(imgIn, 1); img_h = size(imgIn, 2);
     mask = false(img_w, img_h);
     
+    % Iterate through each component to get the overall mask
     for i = 1 : numel(components)
+        
         % Get the box for the specified component
         box = components(i).CompLocation;
         
@@ -90,4 +108,34 @@ function [imgOut, components] = remove_components(imgIn)
     % Fill in the region to remove the component
     imgOut = regionfill(imgIn, mask);
     imshow(imgOut);
+    
+    % Get the connected components from the mask
+    comp_cc = regionprops(mask, 'Centroid');
+    
+    % Iterate through the components to figure out what the centroids are
+    for i = 1 : numel(components)
+        
+        % Iterate through the mask regions to get the distances
+        distances = zeros(numel(comp_cc), 2);
+        for j = 1 : numel(comp_cc)
+            distances(j, :) = pdist( ...
+                [components(i).CompCentroid; comp_cc(j).Centroid]);
+        end
+        
+        % Get the component with the minimum distance
+        [~, idx] = min(distances);
+        
+        % Add the data for the centroid
+        components(i).CompCentroid = comp_cc(idx).Centroid;
+    end
+end
+
+function out = limit_value(in, min, max)
+    if (in < min)
+        out = min;
+    elseif (in > max)
+        out = max;
+    else
+        out = in;
+    end
 end
