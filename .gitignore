@@ -1,2 +1,5 @@
 *.asv
 .ipynb*
+*.sublime*
+python-api/tensorflow_files/
+_*
