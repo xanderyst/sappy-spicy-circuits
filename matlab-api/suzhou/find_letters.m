@@ -52,18 +52,14 @@ function outCC = find_letters(inPic)
                 ccBody = imgCC(jCC);
                 
                 % Extract the information of the body
-                ccBodyLft = ccBody.BoundingBox(1);
-                ccBodyTop = ccBody.BoundingBox(2);
-                ccBodyRgt = ccBodyLft + ccBody.BoundingBox(3);
-                ccBodyBtm = ccBodyTop + ccBody.BoundingBox(4);
+                [ccBodyLft, ccBodyTop, ccBodyRgt, ccBodyBtm] = ...
+                    boundingBox_to_borders(ccBody.BoundingBox);
                 ccBodyX = ccBody.Centroid(1);
                 ccBodyY = ccBody.Centroid(2);
                 
                 % Extract the information of the dot
-                ccDotLft = ccDot.BoundingBox(1);
-                ccDotTop = ccDot.BoundingBox(2);
-                ccDotRgt = ccDotLft + ccDot.BoundingBox(3);
-                ccDotBtm = ccDotTop + ccDot.BoundingBox(4);
+                [ccDotLft, ccDotTop, ccDotRgt, ccDotBtm] = ...
+                    boundingBox_to_borders(ccDot.BoundingBox);
                 ccDotX = ccDot.Centroid(1);
                 ccDotY = ccDot.Centroid(2);
                 
@@ -80,7 +76,7 @@ function outCC = find_letters(inPic)
                     % Find the new centroid
                     newCtr = zeros(1, 2);
                     newCtr(1) = ((ccDot.Area * ccDotX) + ...
-                        (ccBody.Area * ccDotY)) ./ ...
+                        (ccBody.Area * ccDotX)) ./ ...
                         (ccDot.Area + ccBody.Area);
                     newCtr(2) = ((ccDot.Area * ccDotY) + ...
                         (ccBody.Area * ccBodyY)) ./ ...
@@ -155,12 +151,15 @@ function outCC = find_letters(inPic)
         % Iterate through the alphabet
         for a = 1 : numel(alphabet)
             
+            % Resize the current image to a square
+            currImg = pad_to_square(currComp.Image);
+            
             % Extract the image of the letter and scale it to the size of
             % the current connected component
-            alphaImg = imresize(alphabet(a).Image, size(currComp.Image));
+            alphaImg = imresize(alphabet(a).Image, size(currImg));
             
             % Calculate the correlation
-            corrVals(a) = abs(corr2(alphaImg, currComp.Image));
+            corrVals(a) = abs(corr2(alphaImg, currImg));
         end
         
         % Store the letter

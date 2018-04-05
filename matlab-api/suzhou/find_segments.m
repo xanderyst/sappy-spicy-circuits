@@ -1,4 +1,4 @@
-function [imgCC, outPic] = find_segments(inPic)
+function [imgCC, outPic] = find_segments(inPic, crop)
 % [imgCC, outPic] = find_segments(inPic)
 %
 % Function to find different connected segments in the picture.
@@ -26,70 +26,25 @@ function [imgCC, outPic] = find_segments(inPic)
     end
     
     %% Crop the image
-    inPic = imcrop(inPic);
+    figure, clf;
+    [inPic_cropped, crop_box] = imcrop(inPic);
     close;
     
     %% Binarize and smooth the image
-    midPic = block_binarize(inPic, [2 2] .^ 6);
-    midPic = imclose(~midPic, strel('disk', 5));
-    midPic = bwareaopen(midPic, 20);
-    outPic = ~midPic;
+    midPic = imbinarize(inPic_cropped, 'adaptive', ...
+        'ForegroundPolarity', 'dark', 'Sensitivity', 0.5); 
+    % midPic = block_binarize(inPic_cropped, [2 2] .^ 8, 0.7, 0.7);
+    midPic = imopen(midPic, strel('disk', 8));
+    % midPic = medfilt2(midPic, [2 2] .^ 8); % too slow
+    outPic = midPic;
     
     %% Find the different segments
-    connected = bwconncomp(midPic);
+    connected = bwconncomp(~midPic); % find the connected components
     imgCC = regionprops(connected, ...
-        'Area', 'BoundingBox', 'Centroid', 'Image');
+        'Area', 'BoundingBox', 'Centroid', 'Image'); % extract data
     
-    %% Show the labeled image
-    show_object_boundaries(outPic, imgCC);
-    
-    %% Skip the rest of the code
-    return;
-    
-    %% Self made connected component finding code (probably no good)
-    
-    %  Pad the matrix with 0's
-    midPic = [true(size(midPic, 1), 1), midPic, true(size(midPic, 1), 1)];
-    midPic = [true(1, size(midPic, 2)); midPic; true(1, size(midPic, 2))];
-    
-    %  Initialize the variables
-    outPic = false(size(midPic)); % matrix to hold segment values
-    curr_seg = 0; % initialize the current segment value
-    
-    %  Iterate through the image
-    for row = 2 : size(midPic, 1) - 1
-        for col = 2 : size(midPic, 2) - 1
-            
-            % If there is an element at the pixel
-            if (midPic(row, col) == 0)
-                
-                % Get the box of neighboring pixel values and neighboring
-                % currently found segments
-                box = midPic(row - 1 : row + 1, col - 1 : col + 1);
-                box(2, 2) = 0;
-                seg_box = outPic(row - 1 : row + 1, col - 1 : col + 1);
-                
-                % If there are neighboring pixels
-                if any(box(:) == 0)
-                    
-                    % If there is a segment in the surrounding box
-                    if any(seg_box(:)) 
-                        seg = seg_box(seg_box ~= 0);
-                        seg = seg(1);
-                        
-                    % If there has not been a segment found in the
-                    % surrounding box
-                    else
-                        curr_seg = curr_seg + 1;
-                        seg = curr_seg;
-                    end
-                    
-                    % Name the pixel as the specified segment
-                    outPic(row, col) = seg;
-                end
-            end
-        end
-    end
-    
-    outPic = outPic(2 : size(inPic, 1) + 1, 2 : size(inPic, 2) + 1);
+    %% Perform other processes on the components to combine or remove
+    imgCC = remove_small_components(imgCC);
+    imgCC = recover_crop_indices(imgCC, crop_box);
+    imgCC = pad_boxes(imgCC, 1.15);
 end
