@@ -7,7 +7,7 @@ function [imgOut, components] = find_nodes(imgIn, components)
 % - imgIn = input grayscale image with components removed
 % - components = structure containing that following properties:
 %   - CompNames = string denoting the name of the component
-%   - CompLocation = 1x4 vector containing the bounding box
+%   - CompRect = 1x4 vector containing the bounding box
 % 
 % Output:
 % - imgOut = output image containing the labeled nodes
@@ -31,7 +31,7 @@ function [imgOut, components] = find_nodes(imgIn, components)
     for i = 1 : numel(components)
         
         % Get the box containing the component
-        box = components(i).CompLocation;
+        box = components(i).CompRect;
         
         % Get the value indicating the radius to search for nodes
         pad = ceil(0.05 * box(3));
