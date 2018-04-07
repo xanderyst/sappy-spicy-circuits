@@ -17,7 +17,7 @@ function bwOut = erase_components(bwIn, small, thresh)
 
     % Check input arguments
     if (nargin == 2)
-        thresh = 0.005;
+        thresh = 0.2;
     end
 
     % Initialize the output
@@ -27,27 +27,28 @@ function bwOut = erase_components(bwIn, small, thresh)
     img_cc = regionprops(~bwIn, 'BoundingBox', 'PixelIdxList');
     
     % Iterate through the connected components
-    areas = zeros(1, numel(img_cc));
+    size_value = zeros(1, numel(img_cc));
     for i = 1 : numel(img_cc)
         
-        % Get the area of the bounding box
-        areas(i) = img_cc(i).BoundingBox(3) * img_cc(i).BoundingBox(4);
+        % Get the value comparing the sizes
+        size_value(i) = max( ...
+            [img_cc(i).BoundingBox(3), img_cc(i).BoundingBox(4)]);
     end
     
-    % Get the maximum area
-    max_area = max(areas);
+    % Get the maximum size value
+    max_area = max(size_value);
     
     % Get the components that are smaller/larger than a particular area
     if strcmp(small, 'small')
-        img_cc = img_cc(areas <= thresh * max_area);
+        img_cc = img_cc(size_value <= thresh * max_area);
     elseif strcmp(small, 'large')
-        img_cc = img_cc(areas >= thresh * max_area);
+        img_cc = img_cc(size_value > thresh * max_area);
     else
         error('Input not recognized');
     end
     
     % Iterate through the connected components now to remove the components
     for i = 1 : numel(img_cc)
-        bwOut(img_cc(i).PixelIdxList) = 1;
+        bwOut(img_cc(i).PixelIdxList) = 255;
     end
 end
