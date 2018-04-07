@@ -1,6 +1,6 @@
 function [left, top, right, bottom] = boundingBox_to_borders(boundingBox)
     
-    %% Check the input arguments
+    % Check the input arguments
     
     if (nargin ~= 1)
         error('Wrong number of input arguments!');
@@ -10,7 +10,7 @@ function [left, top, right, bottom] = boundingBox_to_borders(boundingBox)
         error('Bounding Box requires 4 values!');
     end
     
-    %% Get the borders of the box
+    % Get the borders of the box
     left   = boundingBox(1);
     top    = boundingBox(2);
     right  = left + boundingBox(3);
