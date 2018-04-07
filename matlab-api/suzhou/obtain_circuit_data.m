@@ -22,9 +22,8 @@ function [imgOut, components] = obtain_circuit_data(imgIn)
 %           + Resistor
 %           + Capacitor
 %   - CompCentroid = centroid of the component
-%   - CompLocation = 4x1 vector denoting the rectangle surrounding the
-%                    component in the form:
-%                    [minimum x, minimum y, width, height]
+%   - CompRect = 4x1 vector denoting the rectangle surrounding the
+%                component in the form: [min x, min y, width, height]
 %   - Characters = properties of the characters associated with the
 %                  component
 %       - Values = character array of the characters that are closest to
@@ -42,8 +41,11 @@ function [imgOut, components] = obtain_circuit_data(imgIn)
 % Written by:
 % Suzhou Li
 
+    % Find the components
+    components = manual_components_box(imgIn);
+
     % Remove the electronic components from the input image
-    [imgOut, components] = remove_components(imgIn);
+    [imgOut, components] = remove_components(imgIn, components);
     
     % Find the text associated with the input image
     [imgOut, components] = find_text(imgOut, components);
@@ -111,7 +113,7 @@ function [imgOut, components] = obtain_circuit_data(imgIn)
         
         % Show the rectangle that contains the component
         rectangle( ...
-            'Position', components(i).CompLocation, ...
+            'Position', components(i).CompRect, ...
             'EdgeColor', 'r');
         
         % Initialize the string
@@ -124,14 +126,14 @@ function [imgOut, components] = obtain_circuit_data(imgIn)
         
         % Show the node values
         text( ...
-            components(i).CompLocation(1) + 10, ...
-            components(i).CompLocation(2) + 30, ...
+            components(i).CompRect(1) + 10, ...
+            components(i).CompRect(2) + 30, ...
             str, 'Color', 'r');
         
         % Show the text associated with each node
         text( ...
-            components(i).CompLocation(1), ...
-            components(i).CompLocation(2), ...
+            components(i).CompRect(1), ...
+            components(i).CompRect(2), ...
             components(i).Characters.Values, ...
             'Color', 'b');
     end
