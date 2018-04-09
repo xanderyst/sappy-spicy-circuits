@@ -43,11 +43,11 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     
     % Find the components
     if (nargin == 1)
-        components = manual_detect_components(imgIn);
+        [components, imgOut] = manual_detect_components(imgIn);
     end
     
     % Remove the electronic components from the input image
-    [imgOut, components] = remove_components(imgIn, components);
+    [imgOut, components] = remove_components(imgOut, components);
     
     % Find the text associated with the input image
     [imgOut, components] = find_text(imgOut, components);
