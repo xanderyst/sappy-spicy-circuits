@@ -42,8 +42,8 @@ function [imgOut, components] = obtain_circuit_data(imgIn)
 % Suzhou Li
 
     % Find the components
-    components = manual_components_box(imgIn);
-
+    %components = manual_detect_components(imgIn);
+    components = detectComponents('Capacitor', imgIn);
     % Remove the electronic components from the input image
     [imgOut, components] = remove_components(imgIn, components);
     
