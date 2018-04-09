@@ -1,7 +1,4 @@
-Spice Simulation 1-1 
+Sappy Spicy Simulation 1-1 
 
 * CIRCUIT Description * 
-C3 1 5 1oo p
-C1 5 6 20 y
-C2 2 6 15 y
-V1 1 2 1
+100 0 1 n
