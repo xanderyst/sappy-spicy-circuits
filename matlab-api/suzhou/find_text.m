@@ -16,15 +16,34 @@ function [imgOut, components] = find_text(imgIn, components)
 % Suzhou Li
 
     % Binarize the image
-    imgOut = imbinarize(imgIn, 'adaptive', ...
+    imgIn = imbinarize(imgIn, 'adaptive', ...
         'ForegroundPolarity', 'dark', 'Sensitivity', 0.5); 
     
     % Get the text in the image
-    img_mid = erase_components(imgOut, 'large');
+    img_mid = erase_components(imgIn, 'large');
     img_ocr = ocr(img_mid, 'TextLayout', 'Block');
     img_txt.Words = img_ocr.Words;
     img_txt.WordBoundingBoxes = img_ocr.WordBoundingBoxes;
     img_txt.WordConfidences = img_ocr.WordConfidences;
+    
+    % Iterate through the words to remove them from the output image
+    mask = false(size(imgIn));
+    for i = 1 : numel(img_txt.Words)
+        % Get the box coordinates for the word
+        bound = img_txt.WordBoundingBoxes(i, :);
+        x_box = [bound(1), bound(1)+bound(3), bound(1)+bound(3), bound(1)];
+        y_box = [bound(2), bound(2), bound(2)+bound(4), bound(2)+bound(4)];
+        
+        % Add the mask onto the current mask
+        mask = mask | poly2mask(x_box,y_box,size(imgIn,1),size(imgIn,2));
+    end
+    
+    % Remove the words from the image
+    imgOut = imgIn;
+    imgOut(mask) = 1;
+    
+    % Remove the small components from the image
+    imgOut = erase_components(imgOut, 'small');
     
     % Remove any non alphanumeric characters
     i = 1;
@@ -130,7 +149,4 @@ function [imgOut, components] = find_text(imgIn, components)
         components(i).Words.BoundingBoxes = ...
             img_txt.WordBoundingBoxes(mask);
     end
-    
-    % Remove the small components from the image
-    imgOut = erase_components(imgIn, 'small');
 end
