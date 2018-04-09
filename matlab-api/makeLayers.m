@@ -1,7 +1,8 @@
 %% Load / create your data
 % Load small data
-T = load('data/small_table.mat');
-T = T.Tout;
+
+T = loadImds2Table('data/bencircuits_fixed.mat');
+% T = T.Tout;
 
 % Create small data from Imds
 % T = loadImds2Table('../data/cap_is.mat');
@@ -117,11 +118,10 @@ data = load('fasterRCNNVehicleTrainingData.mat');
 tdat = struct('T', T, 'layers', layers, 'opts', opts);
 
 %% Train detector
-detector = trainFasterRCNNObjectDetector(tdat.T, tdat.layers, tdat.opts, ...
-    'PositiveOverlapRange', [0.5 1]);
+detector = trainFasterRCNNObjectDetector(tdat.T, tdat.layers, tdat.opts);
 
 %% Test detector
-imtest = imread('img/resized/LVI_1.jpg');
+imtest = imread('img/circuitImages/c128.PNG');
 [bbox, score, label] = detect(detector, imtest);
 
 detectedImTest = insertShape(imtest, 'Rectangle', bbox);

@@ -1,3 +1,4 @@
+function sout = scam(fname)
 %This program takes a netlist (similar to SPICE), parses it to derive the
 %circuit equations, then solves them symbolically.  
 %
@@ -337,3 +338,17 @@ if ~exist('FirstTime_rjla')
     FirstTime_rjla=1;
 end
 
+vals = sym('Vout', size(V));
+for i = 1:length(V)
+    vals(i) = eval(V(i));
+end
+
+valStrings = strings(size(vals));
+for i = 1:length(vals)
+    valStrings(i) = string(vals(i));
+end
+
+sout = struct('Xcell', {Xcell}, 'V', {V}, ...
+    'Vals', vals, 'ValStrings', valStrings, 's', s);
+
+end
