@@ -1,7 +1,8 @@
 function [imgOut, components] = find_nodes(imgIn, components)
 % [imgOut, components] = find_nodes(imgOut, components)
 %
-% Function used to find the nodes that each component is connected to.
+% Function used to find the nodes that each component is connected to. The
+% lowest node is identified as node 0 for the ground node.
 %
 % Input:
 % - imgIn = input grayscale image with components removed
@@ -31,6 +32,19 @@ function [imgOut, components] = find_nodes(imgIn, components)
     
     % Label the nodes in the image
     imgOut = bwlabel(~imgOut);
+    img_cc = regionprops(imgOut, 'BoundingBox', 'PixelIdxList');
+    
+    % Iterate through the components to find the lowest node
+    node_loc = zeros(1, numel(img_cc));
+    for i = 1 : numel(img_cc)
+        node_loc(i) = img_cc(i).BoundingBox(2) + img_cc(i).BoundingBox(4);
+    end
+    [~, node_idx] = sort(node_loc, 'descend');
+    
+    % Iterate through the components to renumber them
+    for i = 1 : numel(img_cc)
+        imgOut(img_cc(node_idx(i)).PixelIdxList) = i;
+    end
     
     % Iterate through the components
     for i = 1 : numel(components)
