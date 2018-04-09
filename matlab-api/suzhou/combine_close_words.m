@@ -1,17 +1,24 @@
-function idxClose = combine_close_words(inWords)
+function idxClose = combine_close_words(inWords, sens)
 % idxClose = combine_close_words(inWords)
 %
 % Function to get a mask of the words that are close to each other.
 %
 % Inputs:
 % - inWords = OCR text object containing the words
+% - sens = sensitivity defining how close the word has to be to another
+%          word before they are combined
 %
 % Outputs:
 % - idxClose = mask over the words identifying which words belong in groups
 %
 % Written By:
 % Suzhou Li
-
+    
+    % Check the input arguments
+    if (nargin == 1)
+        sens = 0.35;
+    end
+    
     % Initialize the output
     idx = false(numel(inWords.Words));
     
@@ -39,7 +46,7 @@ function idxClose = combine_close_words(inWords)
                 boundingBox_to_borders(j_rect);
             
             % Check if the two boxes close enought toegether
-            if is_close(i_box, j_box, max(i_rect(3), i_rect(4)))
+            if is_close(i_box, j_box, sens * i_rect(4))
                 idx(i, j) = true;
             end
         end
