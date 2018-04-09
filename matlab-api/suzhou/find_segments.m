@@ -1,4 +1,4 @@
-function [imgCC, outPic] = find_segments(inPic)
+function [imgCC, outPic] = find_segments(inPic, crop)
 % [imgCC, outPic] = find_segments(inPic)
 %
 % Function to find different connected segments in the picture.
@@ -31,7 +31,9 @@ function [imgCC, outPic] = find_segments(inPic)
     close;
     
     %% Binarize and smooth the image
-    midPic = block_binarize(inPic_cropped, [2 2] .^ 8, 0.8);
+    midPic = imbinarize(inPic_cropped, 'adaptive', ...
+        'ForegroundPolarity', 'dark', 'Sensitivity', 0.5); 
+    % midPic = block_binarize(inPic_cropped, [2 2] .^ 8, 0.7, 0.7);
     midPic = imopen(midPic, strel('disk', 8));
     % midPic = medfilt2(midPic, [2 2] .^ 8); % too slow
     outPic = midPic;
@@ -42,12 +44,7 @@ function [imgCC, outPic] = find_segments(inPic)
         'Area', 'BoundingBox', 'Centroid', 'Image'); % extract data
     
     %% Perform other processes on the components to combine or remove
-    imgCC = combine_inside_components(imgCC);
     imgCC = remove_small_components(imgCC);
-    imgCC = combine_close_components(imgCC, outPic, 2);
     imgCC = recover_crop_indices(imgCC, crop_box);
     imgCC = pad_boxes(imgCC, 1.15);
-    
-    %% Show the labeled image
-    show_object_boundaries(inPic, imgCC);
 end
