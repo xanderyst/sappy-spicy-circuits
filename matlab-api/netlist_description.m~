@@ -1,0 +1,27 @@
+function [ netlist ] = netlist_description(comps)
+% Function to create netlist from array of circuit components
+netlist = []
+for x = 1:size(comps, 2)
+    curr_comp = comps(x);
+ 
+    % get component type and number (i.e C1, R3)
+    compchar = curr_comp.Words.Values(1);
+    comp_name = (curr_comp.Words.Values(1));
+    if ~isstrprop(compchar{1}(1), 'upper')
+        comp_name(1) = upper(comp_name(1));
+    end
+    comp_name = char(comp_name);
+    
+    % get component value - Ohm = 0
+    comp_val = curr_comp.Words.Values(2);
+    if length(curr_comp.Words.Values(3)) > 1
+        
+    end
+    
+    % get nodes
+    comp_nodes = char(strcat(num2str(curr_comp.CompNodes(1)), {' '}, num2str(curr_comp.CompNodes(2))));
+    
+    descrip_string = char(strcat(comp_name, {' '}, comp_nodes, {' '}, comp_val));
+    netlist = descrip_string
+end
+

@@ -1,11 +1,16 @@
-J = imread('RC_example.png');
+% J = imread('capseries.png');
+figure(3); clf
+imshow(J)
 BW = imbinarize(J);
+
 
 BW = ~BW;
 CC = bwconncomp(BW);
  
 [biggest, idx] = max(cellfun(@numel, CC.PixelIdxList));
 BW(CC.PixelIdxList{idx}) = 0;
+figure(1); clf
+imshow(BW)
 
 results = ocr(BW, 'TextLayout', 'Block');
 
@@ -13,7 +18,7 @@ WBB = results.WordBoundingBoxes;
 Iocr         = insertObjectAnnotation(J, 'rectangle', ...
                            results.WordBoundingBoxes, ...
                            results.Words);
-                       
+figure(2); clf                       
 imshow(Iocr)
 
 valArray = [];

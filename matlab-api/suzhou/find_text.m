@@ -14,20 +14,105 @@ function [imgOut, components] = find_text(imgIn, components)
 %
 % Written by:
 % Suzhou Li
-
+    
     % Binarize the image
-    imgOut = imbinarize(imgIn, 'adaptive', ...
+    imgIn = imbinarize(imgIn, 'adaptive', ...
         'ForegroundPolarity', 'dark', 'Sensitivity', 0.5); 
     
+    % Initialize the character set of characters we want to find
+    character_set = '+-LRCVIFHnumckKM0123456789'; % can we find p?
+    
     % Get the text in the image
-    img_mid = erase_components(imgOut, 'large');
-    img_txt = ocr(img_mid, 'TextLayout', 'Block');
+    img_mid = erase_components(imgIn, 'large');
+    img_ocr = ocr(img_mid, 'TextLayout', 'Block', ...
+        'CharacterSet', character_set);
+    img_txt.Text                   = img_ocr.Text;
+    img_txt.CharacterBoundingBoxes = img_ocr.CharacterBoundingBoxes;
+    img_txt.CharacterConfidences   = img_ocr.CharacterConfidences;
+    img_txt.Words             = img_ocr.Words;
+    img_txt.WordBoundingBoxes = img_ocr.WordBoundingBoxes;
+    img_txt.WordConfidences   = img_ocr.WordConfidences;
+    
+    % Iterate through the characters and change all low confidence p to y
+    word_count = 1; no_new = false;
+    for i = 1 : numel(img_txt.Text)
+        
+        % If character is not a space or a new line
+        if (~isnan(img_txt.CharacterConfidences(i)))
+            
+            % If character is a low confidence p
+            if ((img_txt.Text(i) == 'p') && ... 
+                (img_txt.CharacterConfidences(i) < 0.8))
+                
+                % Change the character
+                img_txt.Text(i) = 'u';
+                
+                % Change the word
+                word = char(img_txt.Words(word_count));
+                word(word == 'p') = 'u';
+                img_txt.Words(word_count) = {word};
+            end
+            
+            % Set the no_new to true
+            no_new = true;
+            
+        % If no new character has been found
+        elseif no_new
+            word_count = word_count + 1;
+            no_new = false;
+        end
+    end
+    
+    % Iterate through the words to remove them from the output image
+    mask = false(size(imgIn));
+    for i = 1 : numel(img_txt.Words)
+        % Get the box coordinates for the word
+        bound = img_txt.WordBoundingBoxes(i, :);
+        x_box = [bound(1), bound(1)+bound(3), bound(1)+bound(3), bound(1)];
+        y_box = [bound(2), bound(2), bound(2)+bound(4), bound(2)+bound(4)];
+        
+        % Add the mask onto the current mask
+        mask = mask | poly2mask(x_box,y_box,size(imgIn,1),size(imgIn,2));
+    end
+    
+    % Remove the words from the image
+    imgOut = imgIn;
+    imgOut(mask) = 1;
+    
+    % Remove the small components from the image
+    imgOut = erase_components(imgOut, 'small');
+    
+    % Remove any non alphanumeric characters
+    i = 1;
+    while (i <= numel(img_txt.Words))
+        
+        % Get the mask of the letters and numbers
+        alphanum_mask= isstrprop(char(img_txt.Words(i)), 'alphanum');
+        
+        % If all the characters are not letters or numbers
+        if all(~alphanum_mask)
+            img_txt.Words(i) = [];
+            img_txt.WordBoundingBoxes(i, :) = [];
+            img_txt.WordConfidences(i) = [];
+            
+        % If only some of the characters are not letters or numbers
+        elseif any(~alphanum_mask)
+            word = char(img_txt.Words(i));
+            img_txt.Words(i) = {word(alphanum_mask)};
+        end
+        
+        % Increment i
+        i = i + 1;
+    end
+    
+    % Group the close words together
+    close_words = combine_close_words(img_txt);
     
     % Sort the components by their xmin and ymin location, such that we
     % iterate through the image left through right. We take advantage of
     % this to find the words within a particular row.
     pxl_loc = zeros(1, numel(components));
-    for i = 1 : numel(components)
+    for i = 2 : numel(components)
         pxl_loc(i) = size(imgIn, 2) * (components(i).CompRect(2) - 1) + ...
             components(i).CompRect(2);
     end
@@ -35,7 +120,7 @@ function [imgOut, components] = find_text(imgIn, components)
     
     % Iterate through the components to find the characters and the words
     % that are closest to the component
-    for i = idx
+    for i = 1 : numel(components)
         
         % Find the component centroid and the borders of the component
         comp_ctr = components(i).CompCentroid;
@@ -49,7 +134,7 @@ function [imgOut, components] = find_text(imgIn, components)
         for j = 1 : numel(img_txt.Words)
             
             % Get the center and the bounding box
-            txt_box = img_txt.CharacterBoundingBoxes(j, :);
+            txt_box = img_txt.WordBoundingBoxes(j, :);
             txt_ctr = floor([ ...
                 txt_box(1) + (txt_box(3) / 2), ...
                 txt_box(2) + (txt_box(4) / 2)]);
@@ -64,7 +149,7 @@ function [imgOut, components] = find_text(imgIn, components)
             % bounding box of the characters
             if (txt_ctr(1) >= comp_ctr(1)) % if the text is on the right
                 x_dist(j) = txt_lft - rgt;
-            else % if the txt is on the left
+            else % if the text is on the left
                 x_dist(j) = lft - txt_rgt;
             end
             
@@ -72,27 +157,33 @@ function [imgOut, components] = find_text(imgIn, components)
             % bounding box of the characters
             if (txt_ctr(2) >= comp_ctr(2)) % if the text is on the top
                 y_dist(j) = txt_btm - top;
-            else % if the text if on the bottom
+            else % if the text is on the bottom
                 y_dist(j) = btm - txt_top;
             end
             
             % Make the distance values all positive
-            x_dist = abs(x_dist); y_dist = abs(y_dist);
+            x_dist(j) = min(abs(x_dist(j)), abs(comp_ctr(1) - txt_ctr(1))); 
+            y_dist(j) = min(abs(y_dist(j)), abs(comp_ctr(2) - txt_ctr(2)));
         end
         
         % Define the distance threshold
         x_thresh = 0.5 * components(i).CompRect(3);
         y_thresh = 0.5 * components(i).CompRect(4);
+        word_thresh = 0.25 * max(word_dist);
         
         % Create the mask
-        mask = (x_dist < x_thresh) & (y_dist < y_thresh).
+        mask = ...
+            (x_dist <= x_thresh) & ...
+            (y_dist <= y_thresh) & ...
+            (word_dist < word_thresh);
         
-        % Find the words closest to the component
+        % Find the grouped words
+        for j = unique(close_words(mask))
+            mask = mask | (close_words == j);
+        end
+        
         components(i).Words.Values = img_txt.Words(mask);
         components(i).Words.BoundingBoxes = ...
-            img_txt.WordBoundingBoxes(mask);
+            img_txt.WordBoundingBoxes(mask, :);
     end
-    
-    % Remove the small components from the image
-    imgOut = erase_components(imgIn, 'small');
 end
