@@ -18,9 +18,14 @@ function [imgOut, components] = find_nodes(imgIn, components)
 % Suzhou Li
 
     % Binarize the image
-    imgOut = imgIn;
-    imgOut = imbinarize(imgOut, 'adaptive', ...
-        'ForegroundPolarity', 'dark', 'Sensitivity', 0.5); 
+    if (~islogical(imgIn))
+        imgOut = imbinarize(imgIn, 'adaptive', ...
+            'ForegroundPolarity', 'dark', 'Sensitivity', 0.5); 
+    else
+        imgOut = imgIn;
+    end
+    
+    % Clean the image
     imgOut = bwareaopen(~imgOut, 300);
     imgOut = imopen(~imgOut, strel('square', 16));
     

@@ -44,6 +44,8 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     % Find the components
     if (nargin == 1)
         [components, imgOut] = manual_detect_components(imgIn);
+    else
+        imgOut = imgIn;
     end
     
     % Remove the electronic components from the input image
