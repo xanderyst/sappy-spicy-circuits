@@ -80,7 +80,8 @@ function [imgOut, components] = find_text(imgIn, components)
     imgOut(mask) = 1;
     
     % Remove the small components from the image
-    imgOut = erase_components(imgOut, 'small');
+    %imgOut = erase_components(imgOut, 'small');
+    imgOut = bwareaopen(imgOut, 8);
     
     % Remove any non alphanumeric characters
     i = 1;
