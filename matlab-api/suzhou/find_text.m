@@ -14,17 +14,54 @@ function [imgOut, components] = find_text(imgIn, components)
 %
 % Written by:
 % Suzhou Li
-
+    
     % Binarize the image
     imgIn = imbinarize(imgIn, 'adaptive', ...
         'ForegroundPolarity', 'dark', 'Sensitivity', 0.5); 
     
+    % Initialize the character set of characters we want to find
+    character_set = '+-LRCVIFHnumckKM0123456789'; % can we find p?
+    
     % Get the text in the image
     img_mid = erase_components(imgIn, 'large');
-    img_ocr = ocr(img_mid, 'TextLayout', 'Block');
-    img_txt.Words = img_ocr.Words;
+    img_ocr = ocr(img_mid, 'TextLayout', 'Block', ...
+        'CharacterSet', character_set);
+    img_txt.Text                   = img_ocr.Text;
+    img_txt.CharacterBoundingBoxes = img_ocr.CharacterBoundingBoxes;
+    img_txt.CharacterConfidences   = img_ocr.CharacterConfidences;
+    img_txt.Words             = img_ocr.Words;
     img_txt.WordBoundingBoxes = img_ocr.WordBoundingBoxes;
-    img_txt.WordConfidences = img_ocr.WordConfidences;
+    img_txt.WordConfidences   = img_ocr.WordConfidences;
+    
+    % Iterate through the characters and change all low confidence p to y
+    word_count = 1; no_new = false;
+    for i = 1 : numel(img_txt.Text)
+        
+        % If character is not a space or a new line
+        if (~isnan(img_txt.CharacterConfidences(i)))
+            
+            % If character is a low confidence p
+            if ((img_txt.Text(i) == 'p') && ... 
+                (img_txt.CharacterConfidences(i) < 0.8))
+                
+                % Change the character
+                img_txt.Text(i) = 'u';
+                
+                % Change the word
+                word = char(img_txt.Words(word_count));
+                word(word == 'p') = 'u';
+                img_txt.Words(word_count) = {word};
+            end
+            
+            % Set the no_new to true
+            no_new = true;
+            
+        % If no new character has been found
+        elseif no_new
+            word_count = word_count + 1;
+            no_new = false;
+        end
+    end
     
     % Iterate through the words to remove them from the output image
     mask = false(size(imgIn));
@@ -147,6 +184,6 @@ function [imgOut, components] = find_text(imgIn, components)
         
         components(i).Words.Values = img_txt.Words(mask);
         components(i).Words.BoundingBoxes = ...
-            img_txt.WordBoundingBoxes(mask);
+            img_txt.WordBoundingBoxes(mask, :);
     end
 end

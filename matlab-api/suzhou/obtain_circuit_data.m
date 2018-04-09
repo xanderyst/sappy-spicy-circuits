@@ -44,6 +44,10 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     % Find the components
     if (nargin == 1)
         [components, imgOut] = manual_detect_components(imgIn);
+    
+    % Check if the image is RGB
+    elseif (size(imgIn, 3) ~= 1)
+        imgOut = rgb2gray(imgIn);
     else
         imgOut = imgIn;
     end
