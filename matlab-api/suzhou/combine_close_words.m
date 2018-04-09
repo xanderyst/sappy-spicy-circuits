@@ -1,5 +1,17 @@
 function idxClose = combine_close_words(inWords)
-    
+% idxClose = combine_close_words(inWords)
+%
+% Function to get a mask of the words that are close to each other.
+%
+% Inputs:
+% - inWords = OCR text object containing the words
+%
+% Outputs:
+% - idxClose = mask over the words identifying which words belong in groups
+%
+% Written By:
+% Suzhou Li
+
     % Initialize the output
     idx = false(numel(inWords.Words));
     
