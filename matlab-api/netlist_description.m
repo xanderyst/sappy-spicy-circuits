@@ -21,7 +21,7 @@ if length(char(curr_comp.Words.Values(3))) > 1
 end
 
 % get nodes
-comp_nodes = char(strcat(num2str(curr_comp.CompNodes(1)), {' '}, num2str(curr_comp.CompNodes(2))));
+comp_nodes = char(strcat(num2str(curr_comp.CompNodes(1)-1), {' '}, num2str(curr_comp.CompNodes(2)-1)));
 
 descrip_string = char(strcat(comp_name, {' '}, comp_nodes, {' '}, comp_val));
 

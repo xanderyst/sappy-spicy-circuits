@@ -1,8 +1,0 @@
-function [ out_text ] = create_netlist( comps )
-%Create .txt file for netlist
-
-fileID = fopen('sappy_netlist.txt
-
-
-end
-
