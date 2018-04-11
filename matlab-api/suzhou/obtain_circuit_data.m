@@ -54,7 +54,7 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     % Find the components
     if (nargin == 1)
         
-        % Using Xander's method on single component images
+        % Using Ben's method on single component images
         components = manual_find(imgIn);
         components = detectFromCompStruct(components);
     end
