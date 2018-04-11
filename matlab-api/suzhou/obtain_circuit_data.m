@@ -54,7 +54,10 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     % Find the components
     if (nargin == 1)
         components = manual_find(imgIn);
-        components = get_component_name(components);
+        components = detectFromCompStruct(components);
+%         disp(compout);
+        
+%         components = get_component_name(components);
         
         
         %[components, imgOut] = manual_detect_components(imgIn);
