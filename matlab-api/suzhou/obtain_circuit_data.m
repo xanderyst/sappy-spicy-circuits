@@ -63,9 +63,6 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
         imgOut = imgIn;
     end
     
-    if (size(imgOut, 3) ~= 1)
-        imgOut = rgb2gray(imgOut);
-    end
     % Remove the electronic components from the input image
     [imgOut, components] = remove_components(imgOut, components);
     
