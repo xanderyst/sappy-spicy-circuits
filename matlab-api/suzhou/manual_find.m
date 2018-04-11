@@ -1,4 +1,4 @@
-function [components, imgOut] = manual_find(imgIn)
+function [components] = manual_find(imgIn)
 % components = manual_components_box(imgIn)
 %
 % Function to manually draw boxes around the components and extract the
@@ -14,9 +14,6 @@ function [components, imgOut] = manual_find(imgIn)
     % Display the image on a new figure
     fig = figure; clf; % initialize figure and store figure handle
     imshow(imgIn); % display the actual grayscale image
-    
-    % Get the output image
-    imgOut = imgIn;
     
     % Initialize the string array containing the component names
     component_names = {'Current Source', 'Voltage Source', ...

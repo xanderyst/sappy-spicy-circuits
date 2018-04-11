@@ -53,16 +53,20 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
 
     % Find the components
     if (nargin == 1)
+        components = manual_find(imgIn);
+        components = get_component_name(components);
+        
+        
         %[components, imgOut] = manual_detect_components(imgIn);
-        initialComponent = [];
-        [imgLabel, components] = detectComponents('Capacitor', imgIn, imgIn, initialComponent);
-        [imgLabel, components] = detectComponents('Resistor', imgIn, imgLabel, components);
-        [imgLabel, components] = detectComponents('VoltageSource', imgIn, imgLabel, components);
-        [imgLabel, components] = detectComponents('CurrentSource', imgIn, imgLabel, components);
-        [imgLabel, components] = detectComponents('Inductor', imgIn, imgLabel, components);
+%         initialComponent = [];
+%         [imgLabel, components] = detectComponents('Capacitor', imgIn, imgIn, initialComponent);
+%         [imgLabel, components] = detectComponents('Resistor', imgIn, imgLabel, components);
+%         [imgLabel, components] = detectComponents('VoltageSource', imgIn, imgLabel, components);
+%         [imgLabel, components] = detectComponents('CurrentSource', imgIn, imgLabel, components);
+%         [imgLabel, components] = detectComponents('Inductor', imgIn, imgLabel, components);
         
         % Show the labeled data with confidences
-        figure; imshow(imgLabel);
+        %figure; imshow(imgLabel);
     end
     
     % Initialize the output image
