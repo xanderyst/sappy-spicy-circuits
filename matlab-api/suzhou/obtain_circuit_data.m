@@ -60,8 +60,13 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
         [imgLabel, components] = detectComponents('VoltageSource', imgIn, imgLabel, components);
         [imgLabel, components] = detectComponents('CurrentSource', imgIn, imgLabel, components);
         [imgLabel, components] = detectComponents('Inductor', imgIn, imgLabel, components);
-        imgOut = imgIn;
+        
+        % Show the labeled data with confidences
+        figure; imshow(imgLabel);
     end
+    
+    % Initialize the output image
+    imgOut = imgIn;
     
     % Remove the electronic components from the input image
     [imgOut, components] = remove_components(imgOut, components);
@@ -74,7 +79,4 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     
     % Show the circuit data
     show_circuit_data(imgIn, imgOut, components);
-    
-    % Show the labeled data with confidences
-    figure; imshow(imgLabel);
 end
