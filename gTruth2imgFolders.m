@@ -40,7 +40,7 @@ for i = 1:length(filenames)
             bbox = bboxes(j, :);
             yrange = bbox(1) : bbox(1) + bbox(3);
             xrange = bbox(2) : bbox(2) + bbox(4);
-            imout = img(xrange, yrange);
+            imout = img(xrange, yrange, :);
             
             % Save imout to new file
             [~, b, c] = fileparts(filenames{i});
