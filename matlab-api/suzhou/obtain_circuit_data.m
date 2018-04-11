@@ -44,11 +44,16 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     % Find the components
 
     %components = manual_detect_components(imgIn);
-    %components = detectComponents('Capacitor', imgIn);
-
-    if (nargin == 1)
-        [components, imgOut] = manual_detect_components(imgIn);
     
+    if (nargin == 1)
+        %[components, imgOut] = manual_detect_components(imgIn);
+        initialComponent = [];
+        [imgLabel, components] = detectComponents('Capacitor', imgIn, imgIn, initialComponent);
+        [imgLabel, components] = detectComponents('Resistor', imgIn, imgLabel, components);
+        [imgLabel, components] = detectComponents('VoltageSource', imgIn, imgLabel, components);
+        [imgLabel, components] = detectComponents('CurrentSource', imgIn, imgLabel, components);
+        [imgLabel, components] = detectComponents('Inductor', imgIn, imgLabel, components);
+        imgOut = imgIn;
     % Check if the image is RGB
     elseif (size(imgIn, 3) ~= 1)
         imgOut = rgb2gray(imgIn);
@@ -56,7 +61,9 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
         imgOut = imgIn;
     end
     
-
+    if (size(imgOut, 3) ~= 1)
+        imgOut = rgb2gray(imgOut);
+    end
     % Remove the electronic components from the input image
     [imgOut, components] = remove_components(imgOut, components);
     
@@ -68,4 +75,7 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     
     % Show the circuit data
     show_circuit_data(imgIn, imgOut, components);
+    
+    figure;
+    imshow(imgLabel); %display labeled data
 end
