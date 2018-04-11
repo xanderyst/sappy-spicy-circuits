@@ -14,7 +14,7 @@ end
 comp_name = strcat(compchar, comp_num);
 
 % get component value
-comp_val = '';
+comp_val = 0;
 for v=1:size(curr_comp.Words.Values,2)
     TF = isstrprop(curr_comp.Words.Values(v), 'digit');
     if TF(1)
@@ -26,9 +26,15 @@ if length(curr_comp.Words.Values(v+1)) > 1
     curr_unit = char(curr_comp.Words.Values(v+1));
     curr_unit = curr_unit(1);
     if isstrprop(curr_unit, 'upper')
-        curr_unit = lower(curr_unit);
+        curr_unit = upper(
+
+if length(char(curr_comp.Words.Values(3))) > 1
+    curr_unit = char(curr_comp.Words.Values(3));
+    curr_unit = curr_unit(1);
+    if isstrprop(curr_unit(1), 'upper')
+        curr_unit = upper(curr_unit);
     end
-    comp_val = strcat(comp_val, curr_unit);
+    comp_val = char(strcat(comp_val,{' '}, curr_unit));
 end
 
 % get nodes
