@@ -5,16 +5,6 @@ function [components, imgOut] = manual_detect_components(imgIn)
 % 
 % Written By:
 % Suzhou Li
-
-    % If the input is a image name, load the image
-    if ischar(imgIn)
-        imgIn = imread(imgIn);
-    end
-    
-    % If the image is in RGB, convert it to grayscale
-    if (size(imgIn, 3) ~= 1)
-        imgIn = rgb2gray(imgIn);
-    end
     
     % Display the image on a new figure
     fig = figure; clf; % initialize figure and store figure handle

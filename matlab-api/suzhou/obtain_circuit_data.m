@@ -41,10 +41,17 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
 % Written by:
 % Suzhou Li
     
-    % Find the components
-
-    %components = manual_detect_components(imgIn);
+    % If the input is a image name, load the image
+    if ischar(imgIn)
+        imgIn = imread(imgIn);
+    end
     
+    % If the image is in RGB, convert it to grayscale
+    if (size(imgIn, 3) ~= 1)
+        imgIn = rgb2gray(imgIn);
+    end
+
+    % Find the components
     if (nargin == 1)
         %[components, imgOut] = manual_detect_components(imgIn);
         initialComponent = [];
@@ -53,11 +60,6 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
         [imgLabel, components] = detectComponents('VoltageSource', imgIn, imgLabel, components);
         [imgLabel, components] = detectComponents('CurrentSource', imgIn, imgLabel, components);
         [imgLabel, components] = detectComponents('Inductor', imgIn, imgLabel, components);
-        imgOut = imgIn;
-    % Check if the image is RGB
-    elseif (size(imgIn, 3) ~= 1)
-        imgOut = rgb2gray(imgIn);
-    else
         imgOut = imgIn;
     end
     
@@ -76,6 +78,6 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     % Show the circuit data
     show_circuit_data(imgIn, imgOut, components);
     
-    figure;
-    imshow(imgLabel); %display labeled data
+    % Show the labeled data with confidences
+    figure; imshow(imgLabel);
 end
