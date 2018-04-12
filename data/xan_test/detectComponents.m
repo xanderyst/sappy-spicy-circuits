@@ -25,7 +25,7 @@ function [imgLabel, out] = detectComponents(name, img, imgLabel, out)
                  (box(2) + (box(4) / 2))]);   % center not centroid
            out(end).CompRect = box;
            %annotation = sprintf('Name: %s, Confidence = %.1f', name, scores(i));
-           annotation = sprintf('Name: %s', name, scores(i));
+           annotation = sprintf('%s', name);
            imgLabel = insertObjectAnnotation(imgLabel, 'rectangle', bboxes(i,:), annotation);
        end
     end

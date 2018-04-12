@@ -16,14 +16,27 @@ function [imgOut, components] = find_text(imgIn, components)
 % Suzhou Li
     
     % Binarize the image
-    imgIn = imbinarize(imgIn, 'adaptive', ...
+    imgOut = imbinarize(imgIn, 'adaptive', ...
         'ForegroundPolarity', 'dark', 'Sensitivity', 0.5); 
     
     % Initialize the character set of characters we want to find
-    character_set = '+-LRCVIFHnumckKM0123456789'; % can we find p?
+    character_set = '+-()=LRCVIFHnumckKM0123456789'; % can we find p?
+    
+    % Fill in the components with black box
+    img_mid = fill_in_binary(imgOut, components, false);
+    
+    % Remove the largest component in the image
+    CC = bwconncomp(~img_mid);
+    [~, comp_idx] = max(cellfun(@numel, CC.PixelIdxList));
+    img_mid(CC.PixelIdxList{comp_idx}) = true;
+    img_mid = bwareaopen(img_mid, 8);
+    
+    % Get the output image
+    imgOut = true(size(imgIn));
+    imgOut(CC.PixelIdxList{comp_idx}) = false;
+    imgOut = fill_in_binary(imgOut, components, true);
     
     % Get the text in the image
-    img_mid = erase_components(imgIn, 'large');
     img_ocr = ocr(img_mid, 'TextLayout', 'Block', ...
         'CharacterSet', character_set);
     img_txt.Text                   = img_ocr.Text;
@@ -187,4 +200,6 @@ function [imgOut, components] = find_text(imgIn, components)
         components(i).Words.BoundingBoxes = ...
             img_txt.WordBoundingBoxes(mask, :);
     end
+    figure;
+    imshow(imgOut);
 end

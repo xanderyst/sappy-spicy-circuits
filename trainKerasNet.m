@@ -1,18 +1,20 @@
 classes = {'Capacitor', 'CurrentSource', 'Inductor',...
     'Resistor', 'VoltageSource'};
-netTrained = importKerasNetwork('data/minivggnet_indivprinted_weights32x32.hdf5', ...
-    'ClassNames', classes);
+% netTrained = importKerasNetwork('data/minivggnet_indivprinted_weights32x32.hdf5', ...
+%     'ClassNames', classes);
+netTrained = load('data/netTrained.mat');
+netTrained = netTrained.netTrained;
 
 %% Train network
-options = trainingOptions('sgdm', ...
-    'InitialLearnRate',0.001, ...
-    'Verbose',false, ...
-    'Plots','training-progress');
-
-imdsTrain = imageDatastore('img/indivPrinted/', ...
-    'IncludeSubfolders', true, 'LabelSource', 'foldernames');
-
-netTrained = trainNetwork(imdsTrain,netTrained.Layers,options);
+% options = trainingOptions('sgdm', ...
+%     'InitialLearnRate',0.001, ...
+%     'Verbose',false, ...
+%     'Plots','training-progress');
+% 
+% imdsTrain = imageDatastore('img/indivPrinted/', ...
+%     'IncludeSubfolders', true, 'LabelSource', 'foldernames');
+% 
+% netTrained = trainNetwork(imdsTrain,netTrained.Layers,options);
 
 %% Load Test Images
 % imageLabeler('img/testPrinted/')
@@ -36,4 +38,4 @@ for i = 1:nfiles
     fprintf('Label detected: %s\n', label)
     pause;
 end
-
+    
