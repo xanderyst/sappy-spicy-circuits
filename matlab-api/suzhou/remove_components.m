@@ -28,6 +28,7 @@ function [imgOut, components, mask] = remove_components(imgIn, components)
     
     % Fill in the region to remove the component
     imgOut = regionfill(imgIn, mask);
+    figure;
     imshow(imgOut);
     
     % Get the connected components from the mask

@@ -187,4 +187,6 @@ function [imgOut, components] = find_text(imgIn, components)
         components(i).Words.BoundingBoxes = ...
             img_txt.WordBoundingBoxes(mask, :);
     end
+    figure;
+    imshow(imgOut);
 end
