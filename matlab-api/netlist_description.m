@@ -3,7 +3,7 @@ function [ descrip_string ] = netlist_description(curr_comp, comp_num)
 
 % get component type and number (i.e C1, R3)
 comp = string(curr_comp.CompName);
-if comp == 'Resistor' || comp == 'Capacitor' || comp == 'Voltage Source'
+if comp == 'Resistor' || comp == 'Capacitor' || comp == 'VoltageSource'
     comp = char(comp);
     compchar = comp(1);
 elseif comp == 'Inductor'
@@ -34,7 +34,7 @@ if length(char(curr_comp.Words.Values(v+1))) > 1
 end
 
 % get nodes
-if string(comp) == 'Voltage Source' || string(comp) == 'Current Source'
+if string(comp) == 'VoltageSource' || string(comp) == 'CurrentSource'
     comp_nodes = char(strcat(num2str(curr_comp.CompNodes(2)-1), {' '}, num2str(curr_comp.CompNodes(1)-1)));
 else
     comp_nodes = char(strcat(num2str(curr_comp.CompNodes(1)-1), {' '}, num2str(curr_comp.CompNodes(2)-1)));

@@ -27,8 +27,7 @@ function [imgOut, components] = find_nodes(imgIn, components)
     end
     
     % Clean the image
-    imgOut = bwareaopen(~imgOut, 300);
-    imgOut = imopen(~imgOut, strel('square', 16));
+    imgOut = imopen(imgOut, strel('square', 8));
     
     % Label the nodes in the image
     imgOut = bwlabel(~imgOut);

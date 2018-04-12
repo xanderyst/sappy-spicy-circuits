@@ -88,14 +88,6 @@ function [imgOut, components] = find_text(imgIn, components)
         mask = mask | poly2mask(x_box,y_box,size(imgIn,1),size(imgIn,2));
     end
     
-    % Remove the words from the image
-    imgOut = imgIn;
-    imgOut(mask) = 1;
-    
-    % Remove the small components from the image
-    %imgOut = erase_components(imgOut, 'small');
-    imgOut = bwareaopen(imgOut, 8);
-    
     % Remove any non alphanumeric characters
     i = 1;
     while (i <= numel(img_txt.Words))
