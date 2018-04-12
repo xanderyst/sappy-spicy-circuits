@@ -59,8 +59,8 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
         [imgLabel, components] = detectComponents('Capacitor', imgIn, imgIn, initialComponent);
         [imgLabel, components] = detectComponents('Resistor', imgIn, imgLabel, components);
         [imgLabel, components] = detectComponents('VoltageSource', imgIn, imgLabel, components);
-        [imgLabel, components] = detectComponents('CurrentSource', imgIn, imgLabel, components);
-        [imgLabel, components] = detectComponents('Inductor', imgIn, imgLabel, components);
+        %[imgLabel, components] = detectComponents('CurrentSource', imgIn, imgLabel, components);
+        %[imgLabel, components] = detectComponents('Inductor', imgIn, imgLabel, components);
         imgOut = imgIn;
     % Check if the image is RGB
     elseif (size(imgIn, 3) ~= 1)

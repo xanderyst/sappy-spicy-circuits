@@ -3,7 +3,7 @@ function [ descrip_string ] = netlist_description(curr_comp, comp_num)
 
 % get component type and number (i.e C1, R3)
 comp = string(curr_comp.CompName);
-if comp == 'Resistor' || comp == 'Capacitor' || comp == 'Voltage Source'
+if comp == 'Resistor' || comp == 'Capacitor' || comp == 'VoltageSource'
     comp = char(comp);
     compchar = comp(1);
 elseif comp == 'Inductor'
