@@ -2,11 +2,12 @@
 %resAndCapGroundTruth = load('data/xan_test/groundTruth_resCap.mat');
 %resGroundTruth = selectLabels(resAndCapGroundTruth.gTruth,'Res');
 resAndCapGroundTruth = load('data/bencircuits_fixed.mat');
-resGroundTruth = selectLabels(resAndCapGroundTruth.gTruth,'VoltageSource');
+resGroundTruth = selectLabels(resAndCapGroundTruth.gTruth,'Resistor');
 trainingData = objectDetectorTrainingData(resGroundTruth, 'SamplingFactor', 1);
 acfDetector = trainACFObjectDetector(trainingData,'NegativeSamplesFactor',5);
 %img = imread('matlab-api/RC_demo.PNG');
-img = imread('img/circuitImages/c64_edit.png');
+%img = imread('img/circuitImages/c64_edit.png');
+img = imread('data/xan_test/testing/testing.jpg');
 %img = rgb2gray(RGB);
 
 [bboxes, scores] = detect(acfDetector, img);

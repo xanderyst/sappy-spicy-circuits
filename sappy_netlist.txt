@@ -1,0 +1,10 @@
+Sappy Spicy Simulation 1-1 
+
+* CIRCUIT Description * 
+C1 2 3 50
+C2 1 2 50
+C3 0 1 50
+R1 2 3 7k
+R2 1 2 7k
+R3 0 1 7k
+V0 0 3 1
