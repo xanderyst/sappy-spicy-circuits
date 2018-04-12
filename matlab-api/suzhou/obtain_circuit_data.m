@@ -47,6 +47,7 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     
     if (nargin == 1)
         %[components, imgOut] = manual_detect_components(imgIn);
+        % try running imgIn = imread('data/xan_test/testing/RC_demo.png');
         initialComponent = [];
         [imgLabel, components] = detectComponents('Capacitor', imgIn, imgIn, initialComponent);
         [imgLabel, components] = detectComponents('Resistor', imgIn, imgLabel, components);
