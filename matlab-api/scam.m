@@ -61,8 +61,12 @@ for i=1:length(Name),
                 Isource(numI).Value=nan;
             end
     end
-    numNode=max(str2num(N1{i}),max(str2num(N2{i}),numNode));
+%     numNode=max(str2num(N1{i}),max(str2num(N2{i}),numNode));
 end
+
+c1 = cellfun(@(x) str2num(x), N1, 'UniformOutput', false);
+c2 = cellfun(@(x) str2num(x), N2, 'UniformOutput', false);
+numNode = max([c1{:}, c2{:}]);
 
 %Preallocate all of the cell arrays #################################
 G=cell(numNode,numNode);
