@@ -41,10 +41,17 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
 % Written by:
 % Suzhou Li
     
-    % Find the components
-
-    %components = manual_detect_components(imgIn);
+    % If the input is a image name, load the image
+    if ischar(imgIn)
+        imgIn = imread(imgIn);
+    end
     
+    % If the image is in RGB, convert it to grayscale
+    if (size(imgIn, 3) ~= 1)
+        imgIn = rgb2gray(imgIn);
+    end
+
+    % Find the components
     if (nargin == 1)
         %[components, imgOut] = manual_detect_components(imgIn);
         % try running imgIn = imread('data/xan_test/testing/RC_demo.png');
@@ -60,11 +67,14 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
         imgOut = rgb2gray(imgIn);
     else
         imgOut = imgIn;
+        % Using Ben's method on single component images
+        %components = manual_find(imgIn);
+        %components = detectFromCompStruct(components);
     end
     
-    if (size(imgOut, 3) ~= 1)
-        imgOut = rgb2gray(imgOut);
-    end
+    % Initialize the output image
+    imgOut = imgIn;
+    
     % Remove the electronic components from the input image
     [imgOut, components] = remove_components(imgOut, components);
     
@@ -76,7 +86,4 @@ function [imgOut, components] = obtain_circuit_data(imgIn, components)
     
     % Show the circuit data
     show_circuit_data(imgIn, imgOut, components);
-    
-    figure;
-    imshow(imgLabel); %display labeled data
 end

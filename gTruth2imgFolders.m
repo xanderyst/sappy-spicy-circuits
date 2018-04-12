@@ -1,4 +1,4 @@
-function gTruth2imgFolders(gTruth, outfolder)
+function gTruth2imgFolders(gTruth, outfolder, resizeShape)
 % gTruth2imgFolders     Takes a gTruth struct object (as outputted from
 % imgLabeler) and creates images in subfolders as given by the names in the
 % table columns 
@@ -8,6 +8,10 @@ function gTruth2imgFolders(gTruth, outfolder)
 %       - Source (cell array of file names)
 %   - LabelDefinitions (table)
 %   - LabelData (table)
+
+if nargin < 3
+    resizeShape = 0;
+end
 
 if ~exist(outfolder, 'dir')
     mkdir(outfolder)
@@ -36,15 +40,17 @@ for i = 1:length(filenames)
             bbox = bboxes(j, :);
             yrange = bbox(1) : bbox(1) + bbox(3);
             xrange = bbox(2) : bbox(2) + bbox(4);
-            imout = img(xrange, yrange);
+            imout = img(xrange, yrange, :);
             
             % Save imout to new file
             [~, b, c] = fileparts(filenames{i});
             imname = fullfile(labelDirOut, [b, '_p', num2str(j), c]);
+            
+            if resizeShape ~= 0
+                imout = imresize(imout, resizeShape);
+            end
             imwrite(imout, imname, 'JPEG')
         end
     end
-    
-    
 end
 end

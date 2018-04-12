@@ -1,27 +1,44 @@
-function [ descrip_string ] = netlist_description(curr_comp)
+function [ descrip_string ] = netlist_description(curr_comp, comp_num)
 % Function to create description string from array of circuit components
 
 % get component type and number (i.e C1, R3)
-compchar = curr_comp.Words.Values(1);
-comp_name = (curr_comp.Words.Values(1));
-if isstrprop(compchar{1}(1), 'lower')
-    comp_name(1) = upper(comp_name(1));
+comp = string(curr_comp.CompName);
+if comp == 'Resistor' || comp == 'Capacitor' || comp == 'Voltage Source'
+    comp = char(comp);
+    compchar = comp(1);
+elseif comp == 'Inductor'
+    compchar = 'L';
+elseif comp == 'CurrentSource'
+    compchar = 'I';
 end
-comp_name = char(comp_name);
+comp_name = strcat(compchar, string(comp_num));
 
 % get component value
-comp_val = curr_comp.Words.Values(2);
-if length(char(curr_comp.Words.Values(3))) > 1
-    curr_unit = char(curr_comp.Words.Values(3));
-    curr_unit = curr_unit(1);
-    if isstrprop(curr_unit(1), 'upper')
-        curr_unit = upper(curr_unit);
+comp_val = '';
+for v=1:size(curr_comp.Words.Values,1)
+    TF = isstrprop(curr_comp.Words.Values(v), 'digit');
+    TF = TF{1};
+    if TF(1)
+        comp_val = curr_comp.Words.Values(v);
+        break
     end
-    comp_val = char(strcat(comp_val,{' '}, curr_unit));
+end   
+
+if length(char(curr_comp.Words.Values(v+1))) > 1
+    curr_unit = char(curr_comp.Words.Values(v+1));
+    curr_unit = curr_unit(1);
+    if isstrprop(curr_unit, 'upper')
+        curr_unit = lower(curr_unit);
+    end
+    comp_val = strcat(comp_val, curr_unit);
 end
 
 % get nodes
-comp_nodes = char(strcat(num2str(curr_comp.CompNodes(1)-1), {' '}, num2str(curr_comp.CompNodes(2)-1)));
+if string(comp) == 'Voltage Source' || string(comp) == 'Current Source'
+    comp_nodes = char(strcat(num2str(curr_comp.CompNodes(2)-1), {' '}, num2str(curr_comp.CompNodes(1)-1)));
+else
+    comp_nodes = char(strcat(num2str(curr_comp.CompNodes(1)-1), {' '}, num2str(curr_comp.CompNodes(2)-1)));
+end
 
 descrip_string = char(strcat(comp_name, {' '}, comp_nodes, {' '}, comp_val));
 

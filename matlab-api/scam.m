@@ -5,9 +5,9 @@ function sout = scam(fname)
 %Full documentation available at www.swarthmore.edu/NatSci/echeeve1/Ref/mna/MNA1.html
 %
 
-if ~exist('FirstTime_rjla')
-    disp(sprintf('Full documentation available at www.swarthmore.edu/NatSci/echeeve1/Ref/mna/MNA1.html'));
-end
+% if ~exist('FirstTime_rjla')
+%     disp(sprintf('Full documentation available at www.swarthmore.edu/NatSci/echeeve1/Ref/mna/MNA1.html'));
+% end
 
 disp(sprintf('\n\nStarted -- please be patient.\n'));
 
